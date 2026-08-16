@@ -8,7 +8,9 @@ const text = async page => page.locator('body').innerText().catch(() => '');
 const fill = async (page, name, value) => {
   if (value == null) return;
   const field = page.locator(`[name="${name}"]`).first();
-  await field.fill(String(value));
+  await field.fill('');
+  await field.pressSequentially(String(value), { delay: 80 });
+  await field.evaluate(e => { e.dispatchEvent(new Event('input', { bubbles: true })); e.dispatchEvent(new Event('change', { bubbles: true })); e.dispatchEvent(new Event('blur', { bubbles: true })); });
 };
 const typeReal = async (field, value) => {
   await field.fill('');
@@ -184,8 +186,8 @@ export async function cadastrarVeiculoNoLayan(payload, options = {}) {
   page.on('dialog', async dialog => { dialogError = dialog.message(); await dialog.dismiss(); });
   try {
     await page.goto(BASE, { waitUntil: 'domcontentloaded' });
-    await page.getByRole('textbox', { name: 'Digite seu usuário aqui...' }).fill(username);
-    await page.getByRole('textbox', { name: 'Digite sua senha aqui...' }).fill(password);
+    await typeReal(page.getByRole('textbox', { name: 'Digite seu usuário aqui...' }), username);
+    await typeReal(page.getByRole('textbox', { name: 'Digite sua senha aqui...' }), password);
     await page.getByRole('button', { name: 'Entrar' }).click();
     trace(`pós-login URL=${page.url()}`);
     await page.goto(`${BASE}/versoes/versao5.0/rotinas/c.php?id=trans_veiculos&menu=s`, { waitUntil: 'domcontentloaded' });
