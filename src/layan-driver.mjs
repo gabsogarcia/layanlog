@@ -55,6 +55,8 @@ export async function cadastrarMotoristaNoLayan(payload, options = {}) {
   const trace = step => console.log(`[layan-driver][motorista] ${step}`);
   const browser = await chromium.launch({ args: sparticuzChromium.args, executablePath: await sparticuzChromium.executablePath(), headless: true });
   const page = await browser.newPage();
+  page.setDefaultTimeout(timeoutMs);
+  page.setDefaultNavigationTimeout(timeoutMs);
   let dialogError = null;
   page.on('dialog', async dialog => { dialogError = dialog.message(); await dialog.dismiss(); });
   try {
@@ -174,6 +176,7 @@ export async function cadastrarVeiculoNoLayan(payload, options = {}) {
     await page.getByRole('textbox', { name: 'Digite sua senha aqui...' }).fill(password);
     await page.getByRole('button', { name: 'Entrar' }).click();
     await page.waitForURL(/area_trabalho|rotinas_estrutura/, { timeout: timeoutMs });
+    trace('login confirmado');
     await page.goto(`${BASE}/versoes/versao5.0/rotinas/c.php?id=trans_veiculos&menu=s`, { waitUntil: 'domcontentloaded' });
     await page.locator('a[swktl="Adicionar"]').click();
     await page.waitForURL(/formulario\.php.*rotina=trans_veiculos/, { timeout: timeoutMs });
