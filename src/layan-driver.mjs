@@ -21,7 +21,7 @@ const check = async (page, selector) => {
   const field = page.locator(selector).first();
   if (await field.count() && !(await field.isChecked())) await field.check();
 };
-const next = async page => { await page.locator('#botao_avancar').click(); await page.waitForTimeout(500); };
+const next = async page => { await page.locator('#botao_avancar').click({ force: true, timeout: 10000 }); await page.waitForTimeout(500); };
 const formatPlate = value => {
   const raw = String(value ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '');
   return raw.length === 7 ? `${raw.slice(0, 3)}-${raw.slice(3)}` : String(value ?? '').toUpperCase();
