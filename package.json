@@ -1,0 +1,17 @@
+{
+  "name": "layanlog-cadastro-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:core": "node scripts/test-core.mjs",
+    "test:firestore": "node scripts/test-firestore.mjs",
+    "inspect:firestore": "node scripts/inspecionar.mjs"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "^149.0.0",
+    "firebase-admin": "^13.4.0",
+    "playwright": "^1.62.1",
+    "playwright-core": "^1.62.1"
+  }
+}
