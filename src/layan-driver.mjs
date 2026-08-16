@@ -60,7 +60,8 @@ export async function cadastrarMotoristaNoLayan(payload, options = {}) {
   const timeoutMs = options.timeoutMs ?? 10000;
   const started = Date.now();
   const trace = step => console.log(`[layan-driver][motorista] ${step}`);
-  const browser = await chromium.launch({ args: sparticuzChromium.args, executablePath: await sparticuzChromium.executablePath(), headless: true });
+  const chromiumArgs = [...sparticuzChromium.args, '--disable-gpu', '--disable-dev-shm-usage', '--single-process'];
+  const browser = await chromium.launch({ args: chromiumArgs, executablePath: await sparticuzChromium.executablePath(), headless: true });
   const page = await browser.newPage();
   page.setDefaultTimeout(timeoutMs);
   page.setDefaultNavigationTimeout(timeoutMs);
@@ -181,7 +182,8 @@ export async function cadastrarVeiculoNoLayan(payload, options = {}) {
   if (!username || !password) return { sucesso: false, motivo: 'credenciais_ausentes', detalhe: 'Configure LAYAN_USER e LAYAN_PASSWORD.' };
   const timeoutMs = options.timeoutMs ?? 10000;
   const started = Date.now();
-  const browser = await chromium.launch({ args: sparticuzChromium.args, executablePath: await sparticuzChromium.executablePath(), headless: true });
+  const chromiumArgs = [...sparticuzChromium.args, '--disable-gpu', '--disable-dev-shm-usage', '--single-process'];
+  const browser = await chromium.launch({ args: chromiumArgs, executablePath: await sparticuzChromium.executablePath(), headless: true });
   const page = await browser.newPage();
   let dialogError = null;
   page.on('dialog', async dialog => { dialogError = dialog.message(); await dialog.dismiss(); });
