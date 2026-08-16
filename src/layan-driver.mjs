@@ -175,8 +175,8 @@ export async function cadastrarVeiculoNoLayan(payload, options = {}) {
     await page.getByRole('textbox', { name: 'Digite seu usuário aqui...' }).fill(username);
     await page.getByRole('textbox', { name: 'Digite sua senha aqui...' }).fill(password);
     await page.getByRole('button', { name: 'Entrar' }).click();
-    await page.waitForURL(/area_trabalho|rotinas_estrutura/, { timeout: timeoutMs });
-    trace('login confirmado');
+    await page.waitForTimeout(3000);
+    trace(`pós-login URL=${page.url()}`);
     await page.goto(`${BASE}/versoes/versao5.0/rotinas/c.php?id=trans_veiculos&menu=s`, { waitUntil: 'domcontentloaded' });
     await page.locator('a[swktl="Adicionar"]').click();
     await page.waitForURL(/formulario\.php.*rotina=trans_veiculos/, { timeout: timeoutMs });
