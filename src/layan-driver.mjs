@@ -79,7 +79,7 @@ export async function cadastrarMotoristaNoLayan(payload, options = {}) {
     trace('navegação para a grade iniciada');
     await page.goto(GRADE, { waitUntil: 'domcontentloaded' });
     await snapshot('grade carregada');
-    trace('botão Adicionar encontrado'); await page.locator('a[swktl="Adicionar"]').click();
+    trace('botão Adicionar encontrado'); await page.locator('a[swktl="Adicionar"]').click({ force: true, timeout: timeoutMs });
     await snapshot('após clique Adicionar');
     await page.waitForURL(/formulario\.php.*rotina=cadastro_pessoas/, { timeout: timeoutMs });
     await snapshot('formulário aberto');
