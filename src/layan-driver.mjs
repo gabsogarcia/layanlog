@@ -52,18 +52,19 @@ export async function cadastrarMotoristaNoLayan(payload, options = {}) {
   if (!username || !password) return { sucesso: false, motivo: 'credenciais_ausentes', detalhe: 'Configure LAYAN_USER e LAYAN_PASSWORD.' };
   const timeoutMs = options.timeoutMs ?? 10000;
   const started = Date.now();
+  const trace = step => console.log(`[layan-driver][motorista] ${step}`);
   const browser = await chromium.launch({ args: sparticuzChromium.args, executablePath: await sparticuzChromium.executablePath(), headless: true });
   const page = await browser.newPage();
   let dialogError = null;
   page.on('dialog', async dialog => { dialogError = dialog.message(); await dialog.dismiss(); });
   try {
-    await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+    trace('abrindo login'); await page.goto(BASE, { waitUntil: 'domcontentloaded' });
     await page.getByRole('textbox', { name: 'Digite seu usuário aqui...' }).fill(username);
     await page.getByRole('textbox', { name: 'Digite sua senha aqui...' }).fill(password);
     await page.getByRole('button', { name: 'Entrar' }).click();
-    await page.waitForURL(/area_trabalho|rotinas_estrutura/, { timeout: timeoutMs });
+    trace('login enviado'); await page.waitForURL(/area_trabalho|rotinas_estrutura/, { timeout: timeoutMs });
     await page.goto(GRADE, { waitUntil: 'domcontentloaded' });
-    await page.locator('a[swktl="Adicionar"]').click();
+    trace('abrindo cadastro de pessoa'); await page.locator('a[swktl="Adicionar"]').click();
     await page.waitForURL(/formulario\.php.*rotina=cadastro_pessoas/, { timeout: timeoutMs });
 
     await check(page, '[name="dados_grupos_id[]"][value="11"]');
