@@ -10,6 +10,11 @@ const fill = async (page, name, value) => {
   const field = page.locator(`[name="${name}"]`).first();
   await field.fill(String(value));
 };
+const typeReal = async (field, value) => {
+  await field.fill('');
+  await field.pressSequentially(String(value ?? ''), { delay: 80 });
+  await field.evaluate(e => { e.dispatchEvent(new Event('input', { bubbles: true })); e.dispatchEvent(new Event('change', { bubbles: true })); e.dispatchEvent(new Event('blur', { bubbles: true })); });
+};
 const check = async (page, selector) => {
   const field = page.locator(selector).first();
   if (await field.count() && !(await field.isChecked())) await field.check();
@@ -58,16 +63,23 @@ export async function cadastrarMotoristaNoLayan(payload, options = {}) {
   page.setDefaultTimeout(timeoutMs);
   page.setDefaultNavigationTimeout(timeoutMs);
   let dialogError = null;
+  const requestFailures = [];
+  page.on('requestfailed', request => requestFailures.push({ url: request.url(), failure: request.failure()?.errorText ?? 'unknown' }));
   page.on('dialog', async dialog => { dialogError = dialog.message(); await dialog.dismiss(); });
+  const snapshot = async step => console.log(JSON.stringify({ etapa: step, url: page.url(), titulo: await page.title().catch(() => ''), body: (await text(page)).replace(/\s+/g, ' ').slice(0, 500), requestFailures: requestFailures.slice(-10), dialog: dialogError }));
   try {
     trace('abrindo login'); await page.goto(BASE, { waitUntil: 'domcontentloaded' });
-    await page.getByRole('textbox', { name: 'Digite seu usuário aqui...' }).fill(username);
-    await page.getByRole('textbox', { name: 'Digite sua senha aqui...' }).fill(password);
+    await typeReal(page.getByRole('textbox', { name: 'Digite seu usuário aqui...' }), username);
+    await typeReal(page.getByRole('textbox', { name: 'Digite sua senha aqui...' }), password);
     await page.getByRole('button', { name: 'Entrar' }).click();
-    trace('login enviado'); await page.waitForURL(/area_trabalho|rotinas_estrutura/, { timeout: timeoutMs });
+    trace('login enviado'); await snapshot('login enviado'); await page.screenshot({ path: `/tmp/layan-post-login-${Date.now()}.png` }).catch(() => {});
+    await snapshot('URL atual depois do login');
+    trace('navegação para a grade iniciada');
     await page.goto(GRADE, { waitUntil: 'domcontentloaded' });
-    trace('abrindo cadastro de pessoa'); await page.locator('a[swktl="Adicionar"]').click();
+    await snapshot('grade carregada');
+    trace('botão Adicionar encontrado'); await page.locator('a[swktl="Adicionar"]').click();
     await page.waitForURL(/formulario\.php.*rotina=cadastro_pessoas/, { timeout: timeoutMs });
+    await snapshot('formulário aberto');
 
     await check(page, '[name="dados_grupos_id[]"][value="11"]');
     await check(page, '[name="dados_grupos_id[]"][value="17"]');
